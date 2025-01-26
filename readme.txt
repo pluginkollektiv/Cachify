@@ -3,7 +3,7 @@
 * Donate link:       https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=TD4AMD2D8EMZW
 * Tags:              cache, caching, performance, optimize, speed
 * Requires at least: 4.7
-* Tested up to:      6.6
+* Tested up to:      6.7
 * Requires PHP:      5.6
 * Stable tag:        2.4.0
 * License:           GPLv2 or later
