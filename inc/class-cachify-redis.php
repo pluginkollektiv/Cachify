@@ -271,7 +271,7 @@ final class Cachify_REDIS implements Cachify_Backend {
 			if ( count( $con ) > 5 ) {
 				$con[5] = floatval( $con[5] );  // Read timeout in seconds.
 			}
-			if ( count( $con ) > 6 && ! is_null( $con[6] ) && is_array( $con[6] ) ) {
+			if ( count( $con ) > 6 && ! is_null( $con[6] ) && ! is_array( $con[6] ) ) {
 				return false;  // Context parameters, e.g. authentication (since PhpRedis 5.3).
 			}
 			if ( count( $con ) > 7 ) {
