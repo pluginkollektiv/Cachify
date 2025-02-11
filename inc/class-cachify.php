@@ -1073,7 +1073,7 @@ final class Cachify {
 	/**
 	 * Removes the post type cache on post updates
 	 *
-	 * @param int    $post_id Post ID.
+	 * @param int     $post_id Post ID.
 	 * @param ?object $post    Post object.
 	 *
 	 * @since 2.0.3
