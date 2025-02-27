@@ -7,6 +7,32 @@
 
 /* Quit */
 defined( 'ABSPATH' ) || exit;
+
+/*
+ * Collect available caching methods.
+ */
+$method_select = array(
+	Cachify::METHOD_DB  => __( 'Database', 'cachify' ),
+);
+if ( Cachify_HDD::is_available() ) {
+	$method_select[ Cachify::METHOD_HDD ] = __( 'Hard disk', 'cachify' );
+}
+if ( Cachify_MEMCACHED::is_available() ) {
+	$method_select[ Cachify::METHOD_MMC ] = __( 'Memcached', 'cachify' );
+}
+if ( Cachify_REDIS::is_available() ) {
+	$method_select[ Cachify::METHOD_REDIS ] = __( 'Redis', 'cachify' );
+}
+
+/*
+ * Minify cache dropdown
+ */
+$minify_select = array(
+	Cachify::MINIFY_DISABLED  => __( 'No minify', 'cachify' ),
+	Cachify::MINIFY_HTML_ONLY => __( 'HTML', 'cachify' ),
+	Cachify::MINIFY_HTML_JS   => __( 'HTML + Inline JavaScript', 'cachify' ),
+);
+
 ?>
 
 <form method="post" action="options.php">
@@ -18,7 +44,7 @@ defined( 'ABSPATH' ) || exit;
 			</th>
 			<td>
 				<select name="cachify[use_apc]" id="cachify_cache_method">
-					<?php foreach ( self::_method_select() as $k => $v ) { ?>
+					<?php foreach ( $method_select as $k => $v ) { ?>
 						<option value="<?php echo esc_attr( $k ); ?>" <?php selected( $options['use_apc'], $k ); ?>><?php echo esc_html( $v ); ?></option>
 					<?php } ?>
 				</select>
@@ -32,7 +58,7 @@ defined( 'ABSPATH' ) || exit;
 			<td>
 				<input type="number" min="0" step="1" name="cachify[cache_expires]" id="cachify_cache_expires" value="<?php echo esc_attr( $options['cache_expires'] ); ?>" class="small-text" />
 				<?php esc_html_e( 'Hours', 'cachify' ); ?>
-				<?php if ( self::METHOD_HDD === $options['use_apc'] ) : ?>
+				<?php if ( Cachify::METHOD_HDD === $options['use_apc'] ) : ?>
 					<p class="description"><?php esc_html_e( 'HDD cache will only expire correctly when triggered by a system cron.', 'cachify' ); ?></p>
 				<?php endif; ?>
 
@@ -119,7 +145,7 @@ defined( 'ABSPATH' ) || exit;
 			</th>
 			<td>
 				<select name="cachify[compress_html]" id="cachify_compress_html">
-					<?php foreach ( self::_minify_select() as $k => $v ) { ?>
+					<?php foreach ( $minify_select as $k => $v ) { ?>
 					<option value="<?php echo esc_attr( $k ); ?>" <?php selected( $options['compress_html'], $k ); ?>>
 						<?php echo esc_html( $v ); ?>
 					</option>
