@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.4.1
+
+* Fix: validation of Redis context parameters array in server hook no longer fails (#315) (#317)
+* Enhance: move some settings related code out of main class (#321)
+* Maintenance: Tested up to WordPress 6.7
+
+
 ## 2.4.0
 
 Requires PHP 5.6 and WordPress 4.7 or above
