@@ -77,8 +77,8 @@ final class Cachify {
 	 *
 	 * @since 2.0.5
 	 */
-	public static function instance() {
-		new self();
+	public static function instance(): self {
+		return new self();
 	}
 
 	/**
@@ -138,14 +138,8 @@ final class Cachify {
 
 		if ( is_admin() ) {
 			/* Backend */
-			if ( version_compare( get_bloginfo( 'version' ), '5.1', '<' ) ) {
-				// The following hooks are deprecated since WP 5.1 (#246).
-				add_action( 'wpmu_new_blog', array( __CLASS__, 'install_later' ) );
-				add_action( 'delete_blog', array( __CLASS__, 'uninstall_later' ) );
-			} else {
-				add_action( 'wp_initialize_site', array( __CLASS__, 'install_later' ) );
-				add_action( 'wp_delete_site', array( __CLASS__, 'uninstall_later' ) );
-			}
+			add_action( 'wp_initialize_site', array( __CLASS__, 'install_later' ) );
+			add_action( 'wp_delete_site', array( __CLASS__, 'uninstall_later' ) );
 
 			add_action( 'admin_init', array( __CLASS__, 'register_textdomain' ) );
 
@@ -175,7 +169,7 @@ final class Cachify {
 	 *
 	 * @since 2.1.0
 	 */
-	public static function on_deactivation() {
+	public static function on_deactivation(): void {
 		/* Remove hdd cache cron when hdd is selected */
 		if ( self::METHOD_HDD === self::$options['use_apc'] ) {
 			$timestamp = wp_next_scheduled( 'hdd_cache_cron' );
@@ -192,7 +186,7 @@ final class Cachify {
 	 *
 	 * @since 1.0
 	 */
-	public static function on_activation() {
+	public static function on_activation(): void {
 		/* Multisite & Network */
 		if ( is_multisite() && ! empty( $_GET['networkwide'] ) ) {
 			/* Blog IDs */
@@ -215,19 +209,20 @@ final class Cachify {
 	/**
 	 * Plugin installation on new WPMS site.
 	 *
-	 * @param int|WP_Site $new_site New site ID or object.
+	 * @param WP_Site $new_site New site ID or object.
 	 *
 	 * @since 1.0
 	 * @since 2.4.0 supports WP_Site argument
+	 * @since 2.5.0 no longer supports int argument
 	 */
-	public static function install_later( $new_site ) {
+	public static function install_later( WP_Site $new_site ): void {
 		/* No network plugin */
 		if ( ! is_plugin_active_for_network( CACHIFY_BASE ) ) {
 			return;
 		}
 
 		/* Switch to blog */
-		switch_to_blog( is_int( $new_site ) ? $new_site : $new_site->blog_id );
+		switch_to_blog( $new_site->blog_id );
 
 		/* Install */
 		self::_install_backend();
@@ -241,7 +236,7 @@ final class Cachify {
 	 *
 	 * @since 1.0
 	 */
-	private static function _install_backend() {
+	private static function _install_backend(): void {
 		add_option(
 			'cachify',
 			array()
@@ -256,7 +251,7 @@ final class Cachify {
 	 *
 	 * @since 1.0
 	 */
-	public static function on_uninstall() {
+	public static function on_uninstall(): void {
 		/* Global */
 		global $wpdb;
 
@@ -284,19 +279,20 @@ final class Cachify {
 	/**
 	 * Uninstalling of the plugin for WPMS site.
 	 *
-	 * @param int|WP_Site $old_site Old site ID or object.
+	 * @param WP_Site $old_site Old site ID or object.
 	 *
 	 * @since 1.0
 	 * @since 2.4.0 supports WP_Site argument
+	 * @since 2.5.0 no longer supports int argument
 	 */
-	public static function uninstall_later( $old_site ) {
+	public static function uninstall_later( WP_Site $old_site ): void {
 		/* No network plugin */
 		if ( ! is_plugin_active_for_network( CACHIFY_BASE ) ) {
 			return;
 		}
 
 		/* Switch to blog */
-		switch_to_blog( is_int( $old_site ) ? $old_site : $old_site->blog_id );
+		switch_to_blog( $old_site->blog_id );
 
 		/* Install */
 		self::_uninstall_backend();
@@ -310,7 +306,7 @@ final class Cachify {
 	 *
 	 * @since 1.0
 	 */
-	private static function _uninstall_backend() {
+	private static function _uninstall_backend(): void {
 		/* Option */
 		delete_option( 'cachify' );
 
@@ -325,7 +321,7 @@ final class Cachify {
 	 *
 	 * @since 1.0
 	 */
-	private static function _get_blog_ids() {
+	private static function _get_blog_ids(): array {
 		/* Global */
 		global $wpdb;
 
@@ -337,7 +333,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function register_styles() {
+	public static function register_styles(): void {
 		/* Register dashboard CSS */
 		wp_register_style(
 			'cachify-dashboard',
@@ -360,7 +356,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function register_scripts() {
+	public static function register_scripts(): void {
 		/* Register admin bar flush script */
 		wp_register_script(
 			'cachify-admin-bar-flush',
@@ -376,7 +372,7 @@ final class Cachify {
 	 *
 	 * @since 2.1.3
 	 */
-	public static function register_textdomain() {
+	public static function register_textdomain(): void {
 		load_plugin_textdomain( 'cachify' );
 	}
 
@@ -385,7 +381,7 @@ final class Cachify {
 	 *
 	 * @since 2.0
 	 */
-	private static function _set_default_vars() {
+	private static function _set_default_vars(): void {
 		/* Options */
 		self::$options = self::_get_options();
 
@@ -428,7 +424,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function admin_notice_unavailable() {
+	public static function admin_notice_unavailable(): void {
 		if ( current_user_can( 'manage_options' ) ) {
 			$unavailable_method = '-';
 			if ( self::$method instanceof Cachify_NOOP ) {
@@ -464,7 +460,7 @@ final class Cachify {
 	 *
 	 * @since 2.0
 	 */
-	private static function _get_options() {
+	private static function _get_options(): array {
 		return wp_parse_args(
 			get_option( 'cachify' ),
 			array(
@@ -490,7 +486,7 @@ final class Cachify {
 	 * @since 1.0
 	 * @since 2.1.9
 	 */
-	public static function robots_txt( $output ) {
+	public static function robots_txt( string $output ): string {
 		if ( ! self::$options['change_robots_txt'] ) {
 			return $output;
 		}
@@ -507,7 +503,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function run_hdd_cache_cron() {
+	public static function run_hdd_cache_cron(): void {
 		Cachify_HDD::clear_cache();
 	}
 
@@ -520,7 +516,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function add_cron_cache_expiration( $schedules ) {
+	public static function add_cron_cache_expiration( array $schedules ): array {
 		$schedules['cachify_cache_expire'] = array(
 			'interval' => self::$options['cache_expires'] * 3600,
 			'display'  => esc_html__( 'Cachify expire', 'cachify' ),
@@ -537,7 +533,7 @@ final class Cachify {
 	 *
 	 * @since 1.0
 	 */
-	public static function action_links( $data ) {
+	public static function action_links( array $data ): array {
 		/* Permissions? */
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return $data;
@@ -570,7 +566,7 @@ final class Cachify {
 	 *
 	 * @since 0.5
 	 */
-	public static function row_meta( $input, $page ) {
+	public static function row_meta( array $input, string $page ): array {
 		/* Permissions */
 		if ( CACHIFY_BASE !== $page ) {
 			return $input;
@@ -594,7 +590,7 @@ final class Cachify {
 	 *
 	 * @since 2.0.0
 	 */
-	public static function add_dashboard_count( $items = array() ) {
+	public static function add_dashboard_count( array $items = array() ): array {
 		/* Skip */
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return $items;
@@ -653,7 +649,7 @@ final class Cachify {
 	 *
 	 * @since 2.0.6
 	 */
-	public static function get_cache_size() {
+	public static function get_cache_size(): int {
 		$size = get_transient( 'cachify_cache_size' );
 		if ( ! $size ) {
 			/* Read */
@@ -680,13 +676,13 @@ final class Cachify {
 	 *
 	 * @hook    mixed cachify_user_can_flush_cache
 	 *
-	 * @param object $wp_admin_bar Object of menu items.
+	 * @param WP_Admin_Bar $wp_admin_bar Object of menu items.
 	 *
 	 * @since 1.2
 	 * @since 2.2.2
 	 * @since 2.4.0 Adjust icon for flush request via AJAX
 	 */
-	public static function add_flush_icon( $wp_admin_bar ) {
+	public static function add_flush_icon( WP_Admin_Bar $wp_admin_bar ): void {
 		/* Quit */
 		if ( ! is_admin_bar_showing() || ! apply_filters( 'cachify_user_can_flush_cache', current_user_can( 'manage_options' ) ) ) {
 			return;
@@ -730,7 +726,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function get_dashicon_success_class() {
+	public static function get_dashicon_success_class(): string {
 		global $wp_version;
 		if ( version_compare( $wp_version, '5.2', '<' ) ) {
 			return 'dashicons-yes';
@@ -744,11 +740,11 @@ final class Cachify {
 	 *
 	 * @hook  mixed  cachify_user_can_flush_cache ?
 	 *
-	 * @param object $wp_admin_bar Object of menu items.
+	 * @param WP_Admin_Bar $wp_admin_bar Object of menu items.
 	 *
 	 * @since 2.4.0
 	 */
-	public static function add_flush_icon_script( $wp_admin_bar ) {
+	public static function add_flush_icon_script( WP_Admin_Bar $wp_admin_bar ): void {
 		/* Quit */
 		if ( ! is_admin_bar_showing() || ! apply_filters( 'cachify_user_can_flush_cache', current_user_can( 'manage_options' ) ) ) {
 			return;
@@ -777,7 +773,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function add_flush_rest_endpoint() {
+	public static function add_flush_rest_endpoint(): void {
 		register_rest_route(
 			self::REST_NAMESPACE,
 			self::REST_ROUTE_FLUSH,
@@ -802,7 +798,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function user_can_manage_options() {
+	public static function user_can_manage_options(): bool {
 		return current_user_can( 'manage_options' );
 	}
 
@@ -811,13 +807,13 @@ final class Cachify {
 	 *
 	 * @hook    mixed  cachify_user_can_flush_cache
 	 *
-	 * @param array $data Metadata of the plugin.
+	 * @param array|string $data Metadata of the plugin.
 	 *
 	 * @since 0.5
 	 * @since 2.2.2
 	 * @since 2.4.0  Extract cache flushing to own method and always redirect to referer with new value for `_cachify` param.
 	 */
-	public static function process_flush_request( $data ) {
+	public static function process_flush_request( $data ): void {
 		/* Skip if not a flush request */
 		if ( empty( $_GET['_cachify'] ) || 'flush' !== $_GET['_cachify'] ) {
 			return;
@@ -857,7 +853,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function flush_cache() {
+	public static function flush_cache(): void {
 		/* Flush cache */
 		if ( is_multisite() && is_network_admin() ) {
 			/* Old blog */
@@ -917,7 +913,7 @@ final class Cachify {
 	 * @since 1.2
 	 * @since 2.2.2
 	 */
-	public static function flush_notice() {
+	public static function flush_notice(): void {
 		/* No admin */
 		if ( ! is_admin_bar_showing() || ! apply_filters( 'cachify_user_can_flush_cache', current_user_can( 'manage_options' ) ) ) {
 			return;
@@ -939,7 +935,7 @@ final class Cachify {
 	 *
 	 * @deprecated 2.4.0 Use comment_edit($id, $comment) instead.
 	 */
-	public static function edit_comment( $id ) {
+	public static function edit_comment( int $id ) {
 		self::comment_edit( $id, array( 'comment_approved' => 1 ) );
 	}
 
@@ -951,7 +947,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0 Replacement for edit_comment($id) with additional comment parameter.
 	 */
-	public static function comment_edit( $id, $comment ) {
+	public static function comment_edit( int $id, array $comment ): void {
 		$approved = (int) $comment['comment_approved'];
 
 		/* Approved comment? */
@@ -978,7 +974,7 @@ final class Cachify {
 	 * @since 2.1.2
 	 * @since 2.4.0 Replacement for edit_comment($id) with additional comment parameter.
 	 */
-	public static function pre_comment( $approved, $comment ) {
+	public static function pre_comment( $approved, array $comment ) {
 		self::new_comment( $comment['comment_ID'], $approved );
 
 		return $approved;
@@ -994,7 +990,7 @@ final class Cachify {
 	 * @since 2.1.2
 	 * @since 2.4.0 Renamed with ID parameter instead of comment array.
 	 */
-	public static function new_comment( $id, $approved ) {
+	public static function new_comment( $id, $approved ): void {
 		/* Approved comment? */
 		if ( 1 === $approved ) {
 			if ( self::$options['reset_on_comment'] ) {
@@ -1008,16 +1004,16 @@ final class Cachify {
 	/**
 	 * Remove page from cache or flush on comment edit
 	 *
-	 * @param string $new_status New status.
-	 * @param string $old_status Old status.
-	 * @param object $comment    The comment.
+	 * @param string     $new_status New status.
+	 * @param string     $old_status Old status.
+	 * @param WP_Comment $comment    The comment.
 	 *
 	 * @since 0.1
 	 * @since 2.1.2
 	 *
 	 * @deprecated 2.4.0 Use comment_status($new_status, $old_status, $comment) instead.
 	 */
-	public static function touch_comment( $new_status, $old_status, $comment ) {
+	public static function touch_comment( string $new_status, string $old_status, WP_Comment $comment ): void {
 		self::comment_status( $new_status, $old_status, $comment );
 	}
 
@@ -1032,7 +1028,7 @@ final class Cachify {
 	 * @since 2.1.2
 	 * @since 2.4.0 Renamed from touch_comment().
 	 */
-	public static function comment_status( $new_status, $old_status, $comment ) {
+	public static function comment_status( string $new_status, string $old_status, WP_Comment $comment ): void {
 		if ( 'approved' === $old_status || 'approved' === $new_status ) {
 			if ( self::$options['reset_on_comment'] ) {
 				self::flush_total_cache();
@@ -1050,7 +1046,7 @@ final class Cachify {
 	 *
 	 * @deprecated no longer used since 2.4
 	 */
-	public static function register_publish_hooks() {
+	public static function register_publish_hooks(): void {
 		/* Available post types */
 		$post_types = get_post_types(
 			array(
@@ -1073,14 +1069,14 @@ final class Cachify {
 	/**
 	 * Removes the post type cache on post updates
 	 *
-	 * @param int    $post_id Post ID.
-	 * @param object $post    Post object.
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
 	 *
 	 * @since 2.0.3
 	 *
 	 * @deprecated no longer used since 2.4
 	 */
-	public static function publish_post_types( $post_id, $post ) {
+	public static function publish_post_types( int $post_id, WP_Post $post ): void {
 		/* No post_id? */
 		if ( empty( $post_id ) || empty( $post ) ) {
 			return;
@@ -1115,7 +1111,7 @@ final class Cachify {
 	 * @since 2.1.7 Make the function public.
 	 * @since 2.4.0 Renamed to save_update_trash_post and introduced parameters.
 	 */
-	public static function save_update_trash_post( $id, $post_after, $post_before ) {
+	public static function save_update_trash_post( int $id, WP_Post $post_after, WP_Post $post_before ): void {
 		$status = get_post_status( $post_before );
 
 		/* Post type published? */
@@ -1134,7 +1130,7 @@ final class Cachify {
 	 * @since 2.3.0
 	 * @since 2.4.0 Renamed to post_update.
 	 */
-	public static function post_update( $id, $data ) {
+	public static function post_update( int $id, array $data ): void {
 		$new_status = $data['post_status'];
 		$old_status = get_post_status( $id );
 
@@ -1151,7 +1147,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function flush_cache_for_posts( $post ) {
+	public static function flush_cache_for_posts( $post ): void {
 		if ( is_int( $post ) ) {
 			$post_id = $post;
 			$data    = get_post( $post_id );
@@ -1180,7 +1176,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function flush_woocommerce( $product ) {
+	public static function flush_woocommerce( $product ): void {
 		if ( is_int( $product ) ) {
 			$id = $product;
 		} else {
@@ -1197,8 +1193,7 @@ final class Cachify {
 	 *
 	 * @since 2.0.3
 	 */
-	public static function remove_page_cache_by_post_id( $post_id ) {
-		$post_id = (int) $post_id;
+	public static function remove_page_cache_by_post_id( int $post_id ): void {
 		if ( ! $post_id ) {
 			return;
 		}
@@ -1213,9 +1208,8 @@ final class Cachify {
 	 *
 	 * @since 0.1
 	 */
-	public static function remove_page_cache_by_url( $url ) {
-		$url = (string) $url;
-		if ( ! $url ) {
+	public static function remove_page_cache_by_url( string $url ): void {
+		if ( empty( $url ) ) {
 			return;
 		}
 
@@ -1240,7 +1234,7 @@ final class Cachify {
 	 *
 	 * @since 2.0.0
 	 */
-	private static function _cache_expires() {
+	private static function _cache_expires(): int {
 		return HOUR_IN_SECONDS * self::$options['cache_expires'];
 	}
 
@@ -1251,7 +1245,7 @@ final class Cachify {
 	 *
 	 * @since 2.3.0
 	 */
-	private static function _signature_details() {
+	private static function _signature_details(): bool {
 		return 1 === self::$options['sig_detail'];
 	}
 
@@ -1265,7 +1259,7 @@ final class Cachify {
 	 * @since 0.1
 	 * @since 2.0
 	 */
-	private static function _cache_hash( $url = '' ) {
+	private static function _cache_hash( string $url = '' ): string {
 		$prefix = is_ssl() ? 'https-' : '';
 
 		if ( empty( $url ) ) {
@@ -1289,7 +1283,7 @@ final class Cachify {
 	 * @since 0.9.1
 	 * @since 1.0
 	 */
-	private static function _preg_split( $input ) {
+	private static function _preg_split( string $input ): array {
 		return (array) preg_split( '/,/', $input, -1, PREG_SPLIT_NO_EMPTY );
 	}
 
@@ -1300,7 +1294,7 @@ final class Cachify {
 	 *
 	 * @since 0.6
 	 */
-	private static function _is_index() {
+	private static function _is_index(): bool {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		return basename( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) === 'index.php';
 	}
@@ -1312,7 +1306,7 @@ final class Cachify {
 	 *
 	 * @since 0.9.1
 	 */
-	private static function _is_mobile() {
+	private static function _is_mobile(): bool {
 		$templatedir = get_template_directory();
 		return ( strpos( $templatedir, 'wptouch' ) || strpos( $templatedir, 'carrington' ) || strpos( $templatedir, 'jetpack' ) || strpos( $templatedir, 'handheld' ) );
 	}
@@ -1324,7 +1318,7 @@ final class Cachify {
 	 *
 	 * @since 2.0.0
 	 */
-	private static function _is_logged_in() {
+	private static function _is_logged_in(): bool {
 		/* Logged in */
 		if ( is_user_logged_in() ) {
 			return true;
@@ -1350,7 +1344,7 @@ final class Cachify {
 	 *
 	 * @since 2.4.0
 	 */
-	public static function register_flush_cache_hooks() {
+	public static function register_flush_cache_hooks(): void {
 		/* Define all default flush cache hooks */
 		$flush_cache_hooks = array(
 			'cachify_flush_cache'            => 10,
@@ -1385,7 +1379,7 @@ final class Cachify {
 	 *
 	 * @since 0.2
 	 */
-	private static function _skip_cache() {
+	private static function _skip_cache(): bool {
 
 		/* Plugin options */
 		$options = self::$options;
@@ -1473,7 +1467,7 @@ final class Cachify {
 	 *
 	 * @since 0.9.2
 	 */
-	private static function _minify_cache( $data ) {
+	private static function _minify_cache( string $data ): string {
 		/* Disabled? */
 		if ( ! self::$options['compress_html'] ) {
 			return $data;
@@ -1535,7 +1529,7 @@ final class Cachify {
 	 * @since 0.1
 	 * @since 2.0
 	 */
-	public static function flush_total_cache( $clear_all_methods = false ) {
+	public static function flush_total_cache( bool $clear_all_methods = false ): void {
 		// We do not need to flush the cache for saved post revisions.
 		if ( did_action( 'save_post_revision' ) ) {
 			return;
@@ -1580,7 +1574,7 @@ final class Cachify {
 	 * @since 0.1
 	 * @since 2.0
 	 */
-	public static function set_cache( $data ) {
+	public static function set_cache( string $data ): string {
 		/* Empty? */
 		if ( empty( $data ) ) {
 			return '';
@@ -1640,7 +1634,7 @@ final class Cachify {
 	 *
 	 * @since 0.1
 	 */
-	public static function manage_cache() {
+	public static function manage_cache(): void {
 		/* No caching? */
 		if ( self::_skip_cache() ) {
 			return;
@@ -1679,7 +1673,7 @@ final class Cachify {
 	 *
 	 * @since 1.0
 	 */
-	public static function add_admin_resources( $hook ) {
+	public static function add_admin_resources( string $hook ): void {
 		/* Hooks check */
 		if ( 'index.php' !== $hook && 'settings_page_cachify' !== $hook ) {
 			return;
@@ -1701,7 +1695,7 @@ final class Cachify {
 	 *
 	 * @since 2.3.0
 	 */
-	public static function admin_dashboard_styles() {
+	public static function admin_dashboard_styles(): void {
 		$wp_version = get_bloginfo( 'version' );
 
 		if ( version_compare( $wp_version, '5.3', '<' ) ) {
@@ -1716,7 +1710,7 @@ final class Cachify {
 	 *
 	 * @deprecated included in dashboard.css since 2.4
 	 */
-	public static function admin_dashboard_dark_mode_styles() {
+	public static function admin_dashboard_dark_mode_styles(): void {
 		wp_add_inline_style( 'cachify-dashboard', '#dashboard_right_now .cachify-icon use { fill: #bbc8d4; }' );
 	}
 
@@ -1725,7 +1719,7 @@ final class Cachify {
 	 *
 	 * @since 1.0
 	 */
-	public static function add_page() {
+	public static function add_page(): void {
 		add_options_page(
 			__( 'Cachify', 'cachify' ),
 			__( 'Cachify', 'cachify' ),
@@ -1743,7 +1737,7 @@ final class Cachify {
 	 *
 	 * @since 1.0
 	 */
-	public static function register_settings() {
+	public static function register_settings(): void {
 		register_setting(
 			'cachify',
 			'cachify',
@@ -1764,7 +1758,7 @@ final class Cachify {
 	 * @since 1.0
 	 * @since 2.1.3
 	 */
-	public static function validate_options( $data ) {
+	public static function validate_options( array $data ): array {
 		/* Empty data? */
 		if ( empty( $data ) ) {
 			return array();
@@ -1787,7 +1781,7 @@ final class Cachify {
 		return array(
 			'only_guests'       => (int) ( ! empty( $data['only_guests'] ) ),
 			'compress_html'     => (int) $data['compress_html'],
-			'cache_expires'     => (int) ( isset( $data['cache_expires'] ) ? $data['cache_expires'] : self::$options['cache_expires'] ),
+			'cache_expires'     => (int) ( $data['cache_expires'] ?? self::$options['cache_expires'] ),
 			'without_ids'       => (string) isset( $data['without_ids'] ) ? sanitize_text_field( $data['without_ids'] ) : '',
 			'without_agents'    => (string) isset( $data['without_agents'] ) ? sanitize_text_field( $data['without_agents'] ) : '',
 			'use_apc'           => (int) $data['use_apc'],
@@ -1803,7 +1797,7 @@ final class Cachify {
 	 *
 	 * @since 1.0
 	 */
-	public static function options_page() {
+	public static function options_page(): void {
 		$options      = self::_get_options();
 		$cachify_tabs = self::_get_tabs( $options );
 		$current_tab  = isset( $_GET['cachify_tab'] ) && isset( $cachify_tabs[ $_GET['cachify_tab'] ] )
@@ -1856,7 +1850,7 @@ final class Cachify {
 	 *
 	 * @since 2.3.0
 	 */
-	private static function _get_tabs( $options ) {
+	private static function _get_tabs( array $options ): array {
 		/* Settings tab is always present */
 		$tabs = array(
 			'settings' => array(
