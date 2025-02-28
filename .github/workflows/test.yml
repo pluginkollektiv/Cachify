@@ -6,8 +6,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - php: '5.6'
-            wordpress: '4.7'
+          - php: '7.2'
+            wordpress: '5.1'
           - php: '7.4'
             wordpress: '5.9'
           - php: '8.0'
@@ -16,7 +16,7 @@ jobs:
             wordpress: '6.4'
           - php: '8.3'
             wordpress: 'latest'
-          - php: '8.3'
+          - php: '8.4'
             wordpress: 'nightly'
     steps:
       - name: Checkout
