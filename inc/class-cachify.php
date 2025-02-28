@@ -1739,55 +1739,6 @@ final class Cachify {
 	}
 
 	/**
-	 * Available caching methods
-	 *
-	 * @return array Array of actually available methods.
-	 *
-	 * @since 2.0
-	 */
-	private static function _method_select() {
-		/* Defaults */
-		$methods = array(
-			self::METHOD_DB  => esc_html__( 'Database', 'cachify' ),
-			self::METHOD_HDD => esc_html__( 'Hard disk', 'cachify' ),
-			self::METHOD_MMC => esc_html__( 'Memcached', 'cachify' ),
-			self::METHOD_REDIS => esc_html__( 'Redis', 'cachify' ),
-		);
-
-		/* Memcached? */
-		if ( ! Cachify_MEMCACHED::is_available() ) {
-			unset( $methods[3] );
-		}
-
-		/* HDD */
-		if ( ! Cachify_HDD::is_available() ) {
-			unset( $methods[2] );
-		}
-
-		/* Redis */
-		if ( ! Cachify_REDIS::is_available() ) {
-			unset( $methods[4] );
-		}
-
-		return $methods;
-	}
-
-	/**
-	 * Minify cache dropdown
-	 *
-	 * @return array Key => value array
-	 *
-	 * @since 2.1.3
-	 */
-	private static function _minify_select() {
-		return array(
-			self::MINIFY_DISABLED  => esc_html__( 'No minify', 'cachify' ),
-			self::MINIFY_HTML_ONLY => esc_html__( 'HTML', 'cachify' ),
-			self::MINIFY_HTML_JS   => esc_html__( 'HTML + Inline JavaScript', 'cachify' ),
-		);
-	}
-
-	/**
 	 * Register settings
 	 *
 	 * @since 1.0

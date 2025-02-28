@@ -5,7 +5,7 @@
 * Requires at least: 4.7
 * Tested up to:      6.7
 * Requires PHP:      5.6
-* Stable tag:        2.4.0
+* Stable tag:        2.4.1
 * License:           GPLv2 or later
 * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,6 +99,12 @@ Allow: /`
 A complete documentation is available in the [online handbook](https://cachify.pluginkollektiv.org/documentation/).
 
 ## Changelog ##
+
+### 2.4.1 ###
+
+* Fix: validation of Redis context parameters array in server hook no longer fails (#315) (#317)
+* Enhance: move some settings related code out of main class (#321)
+* Maintenance: Tested up to WordPress 6.7
 
 ### 2.4.0 ###
 
